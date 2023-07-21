@@ -45,6 +45,9 @@ HardwareTimer t(TIMER2);
 unsigned long iCount = 0;
 #define TIMER2_HZ 8000
 
+long iMicrosTimerCb = 0;
+long iMicrosAdcReady = 0;
+
 void timer_cb() 
 {
     digitalWrite(LED_RED, digitalRead(LED_RED) ^ 1);
@@ -53,6 +56,7 @@ void timer_cb()
 
 	// Start ADC conversion
 	adc_software_trigger_enable(ADC_REGULAR_CHANNEL);
+	iMicrosTimerCb = getCurrentMicros();
 }
 
 // ADC defines
@@ -163,6 +167,8 @@ extern "C"
 	// Is called, when the ADC scan sequence is finished
 	void DMA_Channel0_IRQHandler(void)
 	{
+		iMicrosAdcReady = getCurrentMicros() - iMicrosTimerCb;
+
 		//motor.loopFOC();
 		digitalWrite(LED_GREEN, (iCount % TIMER2_HZ) < (TIMER2_HZ/2) );
 
@@ -204,8 +210,13 @@ extern "C"
 		nvic_irq_enable(ADC_CMP_IRQn, 0,0);    
 		adc_software_trigger_enable(ADC_REGULAR_CHANNEL);	// without extern"C" this makes the MCU hang: processor receives an unexpected interrupt
 	}
+	long iMicrosAdcCmpCb = 0;
 	void ADC_CMP_IRQHandler(void)
 	{
+		long iNow = getCurrentMicros();
+		iMicrosAdcReady = iNow - iMicrosAdcCmpCb;
+		iMicrosAdcCmpCb = iNow;
+
 		adc_interrupt_flag_clear(ADC_INT_EOC);
 		digitalWrite(LED_GREEN, (iCount % TIMER2_HZ) < (TIMER2_HZ/2) );
 		//OUT2T(adc_buffer.v_batt,adc_buffer.current_dc);
@@ -267,6 +278,6 @@ void loop()
 	float fCurrent = (adc_buffer.current_dc - offsetdc) * MOTOR_AMP_CONV_DC_AMP;
 
 	OUT2T(fVoltage ,fCurrent);
-	OUTN(iCount);
+	OUTN(iMicrosAdcReady);
 	delay(10);
 }
