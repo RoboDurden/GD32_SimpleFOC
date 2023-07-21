@@ -2,7 +2,8 @@
 #include <HardwareTimer.h>
 #include <SimpleFOC.h>
 
-    #define DEBUG_STLINK rtt              // Uncomment to enable DEBUG over stlink dongle
+#define DEBUG_STLINK rtt              // Uncomment to enable DEBUG over stlink dongle
+//#define DEBUG_UART  Serial2
 
 #ifdef DEBUG_UART
 	#define SERIALDEBUG DEBUG_UART
@@ -54,8 +55,6 @@ void timer_cb()
 	adc_software_trigger_enable(ADC_REGULAR_CHANNEL);
 }
 
-
-
 // ADC defines
 #define VBATT_PIN	GPIO_PIN_4
 #define VBATT_PORT GPIOA
@@ -77,7 +76,6 @@ adc_buf_t adc_buffer;
 
 extern "C"
 {
-
 	void RCU_init(void)
 	{
 		// enable GPIOA clock
