@@ -157,7 +157,7 @@ extern "C"
 		adc_software_trigger_enable(ADC_REGULAR_CHANNEL);
 		
 		// Set ADC to scan mode
-		adc_special_function_config(ADC_SCAN_MODE, ENABLE);		// makes the MCU hang: processor receives an unexpected interrupt
+		adc_special_function_config(ADC_SCAN_MODE, ENABLE);		//  without extern"C" this makes the MCU hang: processor receives an unexpected interrupt
 	}
 	// This function handles DMA_Channel0_IRQHandler interrupt
 	// Is called, when the ADC scan sequence is finished
@@ -202,7 +202,7 @@ extern "C"
 
 		adc_interrupt_enable(ADC_INT_EOC);
 		nvic_irq_enable(ADC_CMP_IRQn, 0,0);    
-		adc_software_trigger_enable(ADC_REGULAR_CHANNEL);	// makes the MCU hang: processor receives an unexpected interrupt
+		adc_software_trigger_enable(ADC_REGULAR_CHANNEL);	// without extern"C" this makes the MCU hang: processor receives an unexpected interrupt
 	}
 	void ADC_CMP_IRQHandler(void)
 	{
